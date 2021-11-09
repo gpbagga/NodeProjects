@@ -11,10 +11,28 @@ app.get('/', (req, res) => {
   res.send('Hello World, hi hello')
 })
 
+
 const courses = [
   {id: 1, name: 'Heelo course'},
   {id: 2, name: 'peelo course'},
 ]
+app.get('/api/courses/:id', (req, res) => {
+  if(req.params.id <= courses.length){
+    res.send(courses[req.params.id -1])
+  }
+  
+  //400 bad request
+  res.status(400).send()
+})
+app.get('/api/courses', (req, res) => {
+  
+  if(req.query?.id <= courses.length){
+
+    res.send(courses[req.query?.id - 1])
+  }
+  //400 bad request
+  res.status(400).send()
+})
 
 app.post('/api/courses', (req,res) => {
   
