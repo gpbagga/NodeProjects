@@ -7,6 +7,7 @@ app.use(express.json())
 // express.json() returns a piece of middleware. app.use means we want to use middleware in request processing pipeline
 // So this statement automatically parses json object in request processing pipeline
 
+// attach a http get request listener
 app.get('/', (req, res) => {
   res.send('Hello World, hi hello')
 })
@@ -16,6 +17,9 @@ const courses = [
   {id: 1, name: 'Heelo course'},
   {id: 2, name: 'peelo course'},
 ]
+
+// attach another http get request listener
+//route parameters and query parameters
 app.get('/api/courses/:id', (req, res) => {
   if(req.params.id <= courses.length){
     res.send(courses[req.params.id -1])
@@ -23,7 +27,9 @@ app.get('/api/courses/:id', (req, res) => {
   
   //400 bad request
   res.status(400).send()
+  //only one response can be sent so if block is executed and response is sent then this line will not send the response again
 })
+
 app.get('/api/courses', (req, res) => {
   
   if(req.query?.id <= courses.length){
@@ -47,6 +53,7 @@ app.post('/api/courses', (req,res) => {
   
 })
 
+// PORT --> environment variable . We can access it by using process(a global field):
 const port = process.env.PORT || 3000
 
 app.listen(port)
