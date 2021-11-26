@@ -4,6 +4,16 @@ const app = express()
 
 app.use(express.json())
 
+// var mysql = require('mysql')
+// var connection = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'dbuser',
+//   password: 's3kreee7',
+//   database: 'my_db'
+// })
+
+// connection.connect()
+
 app.get('/', (req, res) => {
   res.send("jelllo")
 })
