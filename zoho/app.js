@@ -14,7 +14,7 @@ app.use(express.json())
 // express.json() returns a piece of middleware. app.use means we want to use middleware in request processing pipeline
 // So this statement automatically parses json object in request processing pipeline
 
-const authorizationCode = '1000.c439438b0d36d99ddffb8f8c64169847.21bc61c7e023305c83ec49c5ce01c9cc'
+const authorizationCode = '1000.9563ac8364f635e85d2b02873c30c8e7.9cfda60287403136c4f9bbb29f5e515b'
 const orgId = config.orgId
 let refreshToken = config.refresh_token
 let departmentId = "481049000000006907"
@@ -61,7 +61,6 @@ const getAccessToken = async() => {
         redirect_uri: 'https://cloudinfosystem.com/'
       }
     }
-    //https://accounts.zoho.com/oauth/v2/auth?access_type=offline&prompt=consent&client_id=1000.V5O4UF1P7AC365048LH5QC0TUETOTS&redirect_uri=https://deluge.zoho.com/delugeauth/callback&response_type=code&scope=Desk.tickets.ALL%2CDesk.search.READ%2CDesk.contacts.ALL&state=Public__709295732__709286518__5000000030468021
     )
     accessToken = res.data.access_token
     
@@ -72,10 +71,11 @@ const getAccessToken = async() => {
   return accessToken
 
 }
+//
 
-const createTicket = async(contactId,email, ticketDescription) => {
+const createTicket = async(contactId,email,user_name, ticketDescription) => {
 
-  // accessToken = await getAccessToken()
+  //accessToken = await getAccessToken()
   
   if(accessToken){
 
@@ -90,10 +90,10 @@ const createTicket = async(contactId,email, ticketDescription) => {
         },
         data: {
           contactId : contactId,
-          subject : "Testing subject",
-          dueDate : "2022-06-21T16:16:16.000Z",
+          subject : user_name + " has raised an issue from Slack",
+          dueDate : "",
           departmentId : departmentId,
-          channel : "Email",
+          channel : "Slack",
           description : ticketDescription,
           priority : "High",
           classification : "",
@@ -109,7 +109,34 @@ const createTicket = async(contactId,email, ticketDescription) => {
   return null
   
 }
-
+const getdepartmentName = async() => {
+  if(departmentId && accessToken){
+  //get department name based on departmentId
+  const config = {
+    method: 'get',
+    url: `https://desk.zoho.com/api/v1/departments/${departmentId}`,
+    headers : {
+      orgId: orgId,
+      Authorization: `Zoho-oauthtoken ${accessToken}` 
+    },
+    
+  };
+  
+  let department = null
+  try{
+    const response = await axios(config)
+    if(response.data.isEnabled === true){
+      department = response.data.name
+      console.log(department)
+    }else{
+      console.log('Department is not Enabled:', response.data.isEnabled)  
+    }
+  }catch(e){
+    console.log('error while getting department', e)
+  }
+  return department
+}
+}
 
 const getSlackUserProfile = async(user_id) => {
   
@@ -191,17 +218,52 @@ const getUserZohoContactId = async(profile) => {
   }
 }
 
-const giveResponseToSlack = (reqObj, responseObj) => {
+const giveResponseToSlack = async(reqObj, responseObj) => {
   
   ///use responseObj as per your need
-  var data = JSON.stringify({
+  let assignedto  = responseObj.ticket.assigneeId
+  // If ticekt is not assigned then make default value as Unassigned
+  if( assignedto === null)
+  {
+    assignedto = "Unassigned"
+  }
+  // call department function for getting department Name form ID
+  let departmentName =  await getdepartmentName()
+  var data11 = JSON.stringify({
     "blocks": [
       {
-        "type": "header",
+        "type": "section",
         "text": {
-          "type": "plain_text",
-          "text": reqObj.user_id,
-          "emoji": true
+          "type": "mrkdwn",
+          "text": "*Ticket:* #"+responseObj.ticket.ticketNumber+":\n*Subject: <https://desk.zoho.com/support/demo1aarialife/ShowHomePage.do#Cases/dv/"+responseObj.ticket.id+" | "+responseObj.ticket.subject+">*"
+        }
+      },
+      {
+        "type": "section",
+        "fields": [
+          {
+            "type": "mrkdwn",
+            "text": "*Ticket Owner*\n" + assignedto
+          },
+          {
+            "type": "mrkdwn",
+            "text": "*Status:*\n" + responseObj.ticket.status
+          },
+          {
+            "type": "mrkdwn",
+            "text": "*Department:*\n" + departmentName
+          },  
+          {
+            "type": "mrkdwn",
+            "text": "*Submitted On:*\n" + responseObj.ticket.createdTime
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Description:*\n "+responseObj.ticket.description
         }
       }
     ]
@@ -213,12 +275,12 @@ const giveResponseToSlack = (reqObj, responseObj) => {
     headers: { 
       'Content-Type': 'application/json'
     },
-    data : data
+    data : data11
   };
   
   axios(config)
   .then(function (response) {
-    console.log(JSON.stringify(response.data));
+    console.log(JSON.stringify(response.data11));
   })
   .catch(function (error) {
     console.log(error);
@@ -228,7 +290,7 @@ const giveResponseToSlack = (reqObj, responseObj) => {
 
 app.post('/check',async(req,res)=> {
   //This code is for sending response on same chat where we put our Slash Command
-  
+  let flage = false
   data1 = req.body
   
   const profile = await getSlackUserProfile(data1.user_id)
@@ -238,7 +300,7 @@ app.post('/check',async(req,res)=> {
     
 
     if(contactId){
-      const ticketObject = await createTicket(contactId,profile.email, data1.text)
+      const ticketObject = await createTicket(contactId,profile.email, profile.real_name ,data1.text)
       
       if(ticketObject){
         console.log('ticket generated')
@@ -248,11 +310,11 @@ app.post('/check',async(req,res)=> {
           slackProfile: profile,
           zohoContactId: contactId
         }
-        res.send(responseObj)
-
+        res.send("")
+        flage = true
 
         /// Uncomment below command to send response back to slack
-        // giveResponseToSlack(data1,responseObj)
+        giveResponseToSlack(data1,responseObj)
       
 
       }else{
@@ -265,8 +327,25 @@ app.post('/check',async(req,res)=> {
   }else{
     console.log('email not received in profile')
   }
+  if(!flage)
+  {
+    res.send("Ticket not Generated!!")
+  }
+  });
 
-});
+// app.post('/slackSlashCommand', async(req,res) => {
+//   ///get ticket description and user details
+
+//   // call zoho api
+  
+//   const ticketObject = await createTicket()
+//   if(ticketObject){
+//     console.log('ticket generated', ticketObject)
+//   }else{
+//     res.send('ticket not generated')
+//     console.log('ticket not generated')
+//   }
+  
 
   
 // })
