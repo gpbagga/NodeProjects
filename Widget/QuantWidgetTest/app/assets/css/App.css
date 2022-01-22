@@ -1,0 +1,133 @@
+/* .App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} */
+/* @page{
+  size: A4;
+  margin: 9mm;
+  
+}
+@media print {
+  header{
+    position: fixed;
+    top: 0;
+    display: inherit;
+  }
+  footer {
+    position: fixed;
+    bottom: 0;
+  }
+ .sales{
+   page-break-inside: auto;
+ }
+ 
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+} */
+
+.abc{
+  display: block;
+}
+
+header {
+  width: 100%; height: 150px;
+}
+footer{
+  width: 100%; height: 100px;
+}
+.quotation, .topStuff, .content, .data, .dataleft, .sales-order,.bill, .bill-left, .shipment, .product, .total, .tax, .notes, .t_and_c{
+  display: flow-root;
+}
+@page {
+  size: A4;
+  /* margin: 10px; */
+}
+
+@media print {
+  .parentContainer{
+    position: relative;
+    display: flex;
+    flex: 1;
+  }
+  .header {
+      position: fixed;
+      top: 0;
+      page-break-before: always;
+/*       
+      margin-bottom: 10px; */
+  }
+  .quotation{
+    /* position: initial; */
+    /* page-break-inside: avoid; */
+    /* position: fixed; */
+    /* height: 80%; */
+    
+    page-break-before: auto;
+    display: block;
+    margin-top: 150px
+    /* margin-bottom: 16%; */
+    
+  }
+  .footer {
+    position: fixed;
+    bottom: 0px;
+    page-break-after: always;
+    /* height: 20%; */
+  }
+  
+  .pageBreak{
+    break-before: always;
+    position: initial;
+    /* display: block; */
+    /* float: left; */
+    /* margin-top: 150px; */
+  }
+  .firstPage{
+    position: initial;
+    /* display: block; */
+    /* float: left; */
+    /* margin-top: 150px; */
+    page-break-after: always;
+  }
+  /* .tax , .notes,.total ,.t_and_c{
+    position: inherit;
+    margin-top: 30px;
+  } */
+}
+

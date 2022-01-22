@@ -1,0 +1,2 @@
+cd app .... npx babel --watch src --out-dir . --presets react-app/prod
+zet run
