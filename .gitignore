@@ -2,3 +2,6 @@ ePGGC46/node_modules/
 zoho/node_modules/
 NotificationTesting/node_modules/
 Widget/QuantWidgetTest/node_modules/
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
