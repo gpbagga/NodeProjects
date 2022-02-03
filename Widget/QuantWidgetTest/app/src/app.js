@@ -1,9 +1,10 @@
-import Quotation from "./components/Quotation";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 function App () {
   const componentRef = React.useRef()
+  const handlePrint = ReactToPrint.useReactToPrint({
+    content: () => componentRef.current,
+  });
   React.useEffect(()=>{
+    
     ZOHO.embeddedApp.on("PageLoad",function(data)
     {
       console.log(data);
@@ -20,25 +21,22 @@ function App () {
     ZOHO.embeddedApp.init();
 
   },[])
+  
   return (
     <div>
-      <p>hello there</p>
-      {/* <div className='parentContainer' ref={componentRef} >
-        <Header/>
-          <div
-          >
-            
-            <Quotation/>
-            
-            <div className='pageBreak' 
-            // style={{display:'flow-root'}} 
-            >
-              <p>abc</p>
-            
-            </div>
-          </div>
+      {/* <ReactToPrint
+      trigger={() => 
+        <button >Print this out!</button>
+      }
+      content={() => componentRef.current}
+      /> */}
+      {/* <button onClick={()=>window.print()} >Print</button> */}
+      <div className='parentContainer' ref={componentRef} >
+        <Header/>  
+          <Quotation/>
+          
         <Footer />
-     </div>  */}
+     </div> 
     </div>
   );
 };

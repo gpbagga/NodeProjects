@@ -1,7 +1,9 @@
 const express = require('express')
-
+const NodeRSA = require('node-rsa')
 // express() creates the http server
 const app = express()
+
+const PublicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqOpPyfwYWk6eN5XKft+oDD1PRX517jEzbTdRJEX3OD3FFGEoWylvAmOmD5SWZogsza2IBoABurP3AukB5unkrD1r/dIq92Y5WfspXk9rZgVbFAq3Gpfg13DwxnL5Gb/cKAGNjjJ1RXNYk+tTlRs0koU52wfJ03WkqM3CmqydDK7q9/xD89iSf01YhNFIg8Io4Fl3dsjEV6KMS/rJhKwdtNob39c5VM/XeGUJvDxx+kIlaOtVoncTDLL1HAtWQ5LP9mzLD9kDEFC7kyDy2nSASYeS6FbJs7mpEa89bwS1eBuPEWi8XhbgDDT5EeWZ0x1d1VvfVS2Xh8cPbQERBdLy9QIDAQAB'
 
 app.use(express.json())
 // express.json() returns a piece of middleware. app.use means we want to use middleware in request processing pipeline
@@ -9,9 +11,19 @@ app.use(express.json())
 
 // attach a http get request listener
 app.get('/', (req, res) => {
+  console.log('hello world')
   res.send('Hello World, hi hello')
 })
 
+app.post('/verifyReactNativeKey', (req, res)=> {
+  console.log(req.body)
+  const publicKeyBuffer = Buffer.from(PublicKey, 'base64')
+  const key = new NodeRSA()
+  const signer = key.importKey(publicKeyBuffer, 'public-der')
+  const signatureVerified = signer.verify(Buffer.from(req.body.payload), req.body.signature, 'utf8', 'base64')
+  
+  console.log(signatureVerified)
+})
 
 const courses = [
   {id: 1, name: 'Heelo course'},
@@ -59,4 +71,4 @@ app.post('/api/courses', (req,res) => {
 // PORT --> environment variable . We can access it by using process(a global field):
 const port = process.env.PORT || 3000
 
-app.listen(port, () => {console.log(`Listening on port ${port}`)})
+app.listen(port,'192.168.1.17', () => {console.log(`Listening on port ${port}`)})

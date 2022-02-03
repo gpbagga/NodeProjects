@@ -1,9 +1,12 @@
-import Quotation from "./components/Quotation";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 function App() {
   var componentRef = React.useRef();
+  var handlePrint = ReactToPrint.useReactToPrint({
+    content: function content() {
+      return componentRef.current;
+    }
+  });
   React.useEffect(function () {
+
     ZOHO.embeddedApp.on("PageLoad", function (data) {
       console.log(data);
       ZOHO.CRM.API.getRecord({ Entity: data.Entity, RecordID: data.EntityId[0] }).then(function (data2) {
@@ -17,13 +20,16 @@ function App() {
     */
     ZOHO.embeddedApp.init();
   }, []);
+
   return React.createElement(
     "div",
     null,
     React.createElement(
-      "p",
-      null,
-      "hello there"
+      "div",
+      { className: "parentContainer", ref: componentRef },
+      React.createElement(Header, null),
+      React.createElement(Quotation, null),
+      React.createElement(Footer, null)
     )
   );
 };

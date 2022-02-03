@@ -1,12 +1,10 @@
-import headerLogo from '../assets/img/quant-header.png';
-import '../assets/css/App.css';
-
-export default function Header(){
+function Header(){
     return(
         <header className="header">
            
         
-            <img src={headerLogo} style={{height:"100%" , width:"100%" , top: "0px"}}/>
+            {/* <img src={headerLogo} style={{height:"100%" , width:"100%" , top: "0px"}}/> */}
+            <img src='assets/img/quant_header.png' style={{height:"100%" , width:"100%" , top: "0px"}}/>
         
         </header>
        
